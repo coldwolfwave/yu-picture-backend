@@ -6,31 +6,30 @@ package com.wy.yupicturebackend.exception;
 public class ThrowUtils {
     /**
      * 条件成立则抛异常
-     * @param condition 条件
+     *
+     * @param condition        条件
      * @param runtimeException 异常
      */
-    public static void throwIf(boolean condition,RuntimeException runtimeException) {
-        if (condition){
+    public static void throwIf(boolean condition, RuntimeException runtimeException) {
+        if (condition) {
             throw runtimeException;
         }
     }
 
     /**
-     *
      * @param condition 条件
      * @param errorCode 错误码
      */
     public static void throwIf(boolean condition, ErrorCode errorCode) {
-        throwIf(condition,errorCode);
+        throwIf(condition, new BusinessException(errorCode));
     }
 
     /**
-     *
      * @param condition 条件
      * @param errorCode 错误码
-     * @param message 错误信息
+     * @param message   错误信息
      */
     public static void throwIf(boolean condition, ErrorCode errorCode, String message) {
-        throwIf(condition,errorCode,message);
+        throwIf(condition, new BusinessException(errorCode, message));
     }
 }
