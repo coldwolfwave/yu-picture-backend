@@ -1,4 +1,4 @@
-package com.wy.yupicturebackend.model.dto;
+package com.wy.yupicturebackend.model.dto.user;
 
 import lombok.Data;
 
