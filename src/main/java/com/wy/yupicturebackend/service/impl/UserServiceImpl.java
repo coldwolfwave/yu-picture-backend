@@ -192,21 +192,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
         ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR, "参数为空");
-            Long id = userQueryRequest.getId();
-            String userAccount = userQueryRequest.getUserAccount();
-            String userName = userQueryRequest.getUserName();
-            String userProfile = userQueryRequest.getUserProfile();
-            String userRole = userQueryRequest.getUserRole();
-            String sortField = userQueryRequest.getSortField();
-            String sortOrder = userQueryRequest.getSortOrder();
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq(ObjUtil.isNotNull(id), "id", id);
-            queryWrapper.eq(StrUtil.isNotBlank(userRole), "userRole", userRole);
-            queryWrapper.like(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
-            queryWrapper.like(StrUtil.isNotBlank(userName), "userName", userName);
-            queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
-            queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
-            return queryWrapper;
+        Long id = userQueryRequest.getId();
+        String userAccount = userQueryRequest.getUserAccount();
+        String userName = userQueryRequest.getUserName();
+        String userProfile = userQueryRequest.getUserProfile();
+        String userRole = userQueryRequest.getUserRole();
+        String sortField = userQueryRequest.getSortField();
+        String sortOrder = userQueryRequest.getSortOrder();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(ObjUtil.isNotNull(id), "id", id);
+        queryWrapper.eq(StrUtil.isNotBlank(userRole), "userRole", userRole);
+        queryWrapper.like(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
+        queryWrapper.like(StrUtil.isNotBlank(userName), "userName", userName);
+        queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
+        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+        return queryWrapper;
 
 
     }
@@ -227,6 +227,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 移除登录态
         request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
         return true;
+    }
+
+    @Override
+    public boolean isAdmin(User user) {
+
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
+
     }
 
 
