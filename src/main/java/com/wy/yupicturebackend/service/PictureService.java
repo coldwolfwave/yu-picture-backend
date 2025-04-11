@@ -10,6 +10,7 @@ import com.wy.yupicturebackend.model.dto.picture.PictureUploadRequest;
 import com.wy.yupicturebackend.model.entity.Picture;
 import com.wy.yupicturebackend.model.entity.User;
 import com.wy.yupicturebackend.model.vo.PictureVO;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -95,4 +96,6 @@ public interface PictureService extends IService<Picture> {
             User loginUser
     );
 
+    @Async
+    void clearPictureFile(Picture oldPicture);
 }

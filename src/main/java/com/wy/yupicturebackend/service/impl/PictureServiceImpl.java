@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wy.yupicturebackend.exception.BusinessException;
 import com.wy.yupicturebackend.exception.ErrorCode;
 import com.wy.yupicturebackend.exception.ThrowUtils;
+import com.wy.yupicturebackend.manager.CosManager;
 import com.wy.yupicturebackend.manager.FileManager;
 import com.wy.yupicturebackend.manager.upload.FilePictureUpload;
 import com.wy.yupicturebackend.manager.upload.PictureUploadTemplate;
@@ -34,6 +35,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -65,6 +67,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
     private FilePictureUpload filePictureUpload;
     @Resource
     private UrlPictureUpload urlPictureUpload;
+    @Resource
+    private CosManager cosManager;
 
 
     /**
@@ -153,6 +157,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             picture.setEditTime(new Date());
         }
         boolean result = this.saveOrUpdate(picture);
+        // todo 如果是更新可以删除旧图片
+        //this.clearPictureFile(oldPicture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "图片上传失败");
         return PictureVO.objToVo(picture);
     }
@@ -383,6 +389,28 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             }
         }
         return uploadCount;
+    }
+
+    // 异步清理图片文件
+    @Async
+    @Override
+    public void clearPictureFile(Picture oldPicture) {
+        // 判断该图片是否被多条记录使用
+        String pictureUrl = oldPicture.getUrl();
+        long count = this.lambdaQuery()
+                .eq(Picture::getUrl, pictureUrl)
+                .count();
+        // 有不止一条记录用到了该图片，不清理
+        if (count > 1) {
+            return;
+        }
+        // FIXME 注意，这里的 url 包含了域名，实际上只要传 key 值（存储路径）就够了
+        cosManager.deleteObject(pictureUrl);
+        // 清理缩略图
+        String thumbnailUrl = oldPicture.getThumbnailUrl();
+        if (StrUtil.isNotBlank(thumbnailUrl)) {
+            cosManager.deleteObject(thumbnailUrl);
+        }
     }
 
 
